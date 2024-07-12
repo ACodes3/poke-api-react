@@ -1,7 +1,7 @@
 import React from "react";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
-import LogoImg from "../Images/charmander.png";
+import LogoImg from "../Images/pokeball.png";
 
 const NavbarComponent = () => {
   return (
