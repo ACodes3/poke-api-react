@@ -110,7 +110,7 @@ const ListComponent = () => {
               className="me-2"
               aria-label="Search"
             />
-            <Button variant="outline-success">Search</Button>
+            <Button variant="outline-danger">Search</Button>
           </Form>
         </Container>
       </div>
@@ -136,7 +136,7 @@ const ListComponent = () => {
               </Card.Title>
               <Button
                 className="d-flex justify-content-center aling-content-center align-self-center"
-                variant="primary"
+                variant="warning"
                 href={pokemon.url}
                 target="_blank"
               >
