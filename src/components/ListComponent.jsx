@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
 import Pagination from "react-bootstrap/Pagination";
 import { getPokemons } from "../api"; // Adjust the import path as needed
 
@@ -45,7 +47,11 @@ const ListComponent = () => {
     // If there are less than 7 total pages, show all pagination items
     for (let number = 1; number <= totalPages; number++) {
       paginationItems.push(
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
+        <Pagination.Item
+          key={number}
+          active={number === currentPage}
+          onClick={() => paginate(number)}
+        >
           {number}
         </Pagination.Item>
       );
@@ -53,16 +59,28 @@ const ListComponent = () => {
   } else {
     // If there are more than 7 total pages, show first 3, last 3, and current page
     paginationItems.push(
-      <Pagination.Item key={1} active={currentPage === 1} onClick={() => paginate(1)}>
+      <Pagination.Item
+        key={1}
+        active={currentPage === 1}
+        onClick={() => paginate(1)}
+      >
         1
       </Pagination.Item>
     );
     if (currentPage > 3) {
       paginationItems.push(<Pagination.Ellipsis key="start-ellipsis" />);
     }
-    for (let number = Math.max(2, currentPage - 1); number <= Math.min(currentPage + 1, totalPages - 1); number++) {
+    for (
+      let number = Math.max(2, currentPage - 1);
+      number <= Math.min(currentPage + 1, totalPages - 1);
+      number++
+    ) {
       paginationItems.push(
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
+        <Pagination.Item
+          key={number}
+          active={number === currentPage}
+          onClick={() => paginate(number)}
+        >
           {number}
         </Pagination.Item>
       );
@@ -71,7 +89,11 @@ const ListComponent = () => {
       paginationItems.push(<Pagination.Ellipsis key="end-ellipsis" />);
     }
     paginationItems.push(
-      <Pagination.Item key={totalPages} active={currentPage === totalPages} onClick={() => paginate(totalPages)}>
+      <Pagination.Item
+        key={totalPages}
+        active={currentPage === totalPages}
+        onClick={() => paginate(totalPages)}
+      >
         {totalPages}
       </Pagination.Item>
     );
@@ -79,6 +101,19 @@ const ListComponent = () => {
 
   return (
     <div>
+      <div>
+        <Container className="mt-3 mb-3">
+          <Form className="d-flex w-100">
+            <Form.Control
+              type="search"
+              placeholder="Search"
+              className="me-2"
+              aria-label="Search"
+            />
+            <Button variant="outline-success">Search</Button>
+          </Form>
+        </Container>
+      </div>
       <div
         style={{
           display: "flex",
@@ -112,11 +147,23 @@ const ListComponent = () => {
         ))}
       </div>
       <Pagination className="d-flex justify-content-center mt-3">
-        <Pagination.First onClick={() => paginate(1)} disabled={currentPage === 1} />
-        <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
+        <Pagination.First
+          onClick={() => paginate(1)}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Prev
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+        />
         {paginationItems}
-        <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
-        <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
+        <Pagination.Next
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        />
+        <Pagination.Last
+          onClick={() => paginate(totalPages)}
+          disabled={currentPage === totalPages}
+        />
       </Pagination>
     </div>
   );
