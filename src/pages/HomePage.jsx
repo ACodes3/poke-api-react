@@ -1,8 +1,11 @@
 import React from 'react'
+import ListComponent from '../components/ListComponent'
 
 const HomePage = () => {
   return (
-    <div>HomePage</div>
+    <div>
+        <ListComponent />
+    </div>
   )
 }
 
