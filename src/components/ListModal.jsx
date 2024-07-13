@@ -67,7 +67,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
           </div>
           <div className="mt-2 d-flex justify-content-center align-items-center gap-2">
             {pokemon.types.map((type) => (
-              <Badge key={type.type.name} pill bg="warning" className="mr-1">
+              <Badge key={type.type.name} pill bg="danger" className="mr-1">
                 {capitalize(type.type.name)}
               </Badge>
             ))}
@@ -114,7 +114,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
                     now={stat.base_stat}
                     label={`${stat.base_stat}`}
                     className="mt-2"
-                    variant="info"
+                    variant="warning"
                   />
                 </div>
               ))}
