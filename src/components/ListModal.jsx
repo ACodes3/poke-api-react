@@ -1,10 +1,11 @@
-import React from 'react';
-import Badge from 'react-bootstrap/Badge';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
+import React, { useEffect, useState } from "react";
+import { Card } from "react-bootstrap";
+import Badge from "react-bootstrap/Badge";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import ProgressBar from "react-bootstrap/ProgressBar";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
 // Helper function to capitalize the first letter of a string
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
@@ -14,12 +15,30 @@ const getEvolutions = (pokemon) => {
   // This is a placeholder. You need to replace it with actual evolution data.
   // Assuming it returns an array of evolution objects with id and name.
   return [
-    { id: 2, name: 'Ivysaur' },
-    { id: 3, name: 'Venusaur' },
+    { id: 2, name: "Ivysaur" },
+    { id: 3, name: "Venusaur" },
   ];
 };
 
+// function to get encounters
+const getEncounters = async (pokemonId) => {
+  const response = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/${pokemonId}/encounters`
+  );
+  const data = await response.json();
+  return data;
+};
+
 const ListModal = ({ show, onHide, pokemon }) => {
+  const [encounters, setEncounters] = useState([]);
+  useEffect(() => {
+    if (pokemon) {
+      getEncounters(pokemon.id)
+        .then((data) => setEncounters(data))
+        .catch((error) => console.error("Error fetching encounters:", error));
+    }
+  }, [pokemon]);
+
   if (!pokemon) return null;
 
   const evolutions = getEvolutions(pokemon);
@@ -40,7 +59,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
           <div className="d-flex flex-column align-items-center">
             <h1 className="mb-0">{capitalize(pokemon.name)}</h1>
             <small className="text-muted">
-              #{pokemon.id.toString().padStart(3, '0')}
+              #{pokemon.id.toString().padStart(3, "0")}
             </small>
           </div>
           <div className="mt-2">
@@ -52,11 +71,11 @@ const ListModal = ({ show, onHide, pokemon }) => {
           </div>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="text-center">
+      <Modal.Body className="text-start">
         <img
           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
           alt={pokemon.name}
-          style={{ width: '200px', marginBottom: '20px' }}
+          style={{ width: "200px", marginBottom: "20px" }}
         />
         <Tabs
           defaultActiveKey="about"
@@ -98,11 +117,11 @@ const ListModal = ({ show, onHide, pokemon }) => {
                 <div key={index} className="mb-3">
                   <div className="d-flex justify-content-between">
                     <strong>{capitalize(move.move.name)}</strong>
-                    <span>{move.move.power || '-'}</span>
+                    <span>{move.move.power || "-"}</span>
                   </div>
                   <ProgressBar
                     now={move.move.power || 50}
-                    label={`${move.move.power || '-'}`}
+                    label={`${move.move.power || "-"}`}
                     className="mt-2"
                     variant="danger"
                   />
@@ -113,13 +132,49 @@ const ListModal = ({ show, onHide, pokemon }) => {
           <Tab eventKey="evolutions" title="Evolutions">
             <div className="mt-3">
               {evolutions.map((evolution, index) => (
-                <div key={index} className="d-flex flex-column align-items-center mb-3">
+                <div
+                  key={index}
+                  className="d-flex flex-column align-items-center mb-3"
+                >
                   <img
                     src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolution.id}.png`}
                     alt={evolution.name}
-                    style={{ width: '100px', marginBottom: '10px' }}
+                    style={{ width: "100px", marginBottom: "10px" }}
                   />
                   <strong>{capitalize(evolution.name)}</strong>
+                </div>
+              ))}
+            </div>
+          </Tab>
+          <Tab eventKey="encounters" title="Encounters">
+            <div className="mt-3">
+              {encounters.map((encounter, index) => (
+                <div key={index} className="mb-3">
+                  <Card body>
+                    <p>
+                      <strong>Location:</strong>{" "}
+                      {capitalize(encounter.location_area.name)}
+                    </p>
+                    <p>
+                      <strong>Method:</strong>{" "}
+                      {capitalize(
+                        encounter.version_details[0].encounter_details[0].method
+                          .name
+                      )}
+                    </p>
+                    <p>
+                      <strong>Level Range:</strong>{" "}
+                      {
+                        encounter.version_details[0].encounter_details[0]
+                          .min_level
+                      }{" "}
+                      -{" "}
+                      {
+                        encounter.version_details[0].encounter_details[0]
+                          .max_level
+                      }
+                    </p>
+                  </Card>
                 </div>
               ))}
             </div>
