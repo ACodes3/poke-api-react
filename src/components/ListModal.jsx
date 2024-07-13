@@ -33,13 +33,34 @@ const getEncounters = async (pokemonId) => {
   return data;
 };
 
+// function to get move details
+const getMoveDetails = async (moveUrl) => {
+  const response = await fetch(moveUrl);
+  const data = await response.json();
+  return data;
+};
+
 const ListModal = ({ show, onHide, pokemon }) => {
   const [encounters, setEncounters] = useState([]);
+  const [moves, setMoves] = useState([]);
   useEffect(() => {
     if (pokemon) {
       getEncounters(pokemon.id)
         .then((data) => setEncounters(data))
         .catch((error) => console.error("Error fetching encounters:", error));
+      // Fetch move details
+      const fetchMoveDetails = async () => {
+        const moveDetails = await Promise.all(
+          pokemon.moves.slice(0, 6).map((move) =>
+            getMoveDetails(move.move.url).then((data) => ({
+              name: move.move.name,
+              power: data.power,
+            }))
+          )
+        );
+        setMoves(moveDetails);
+      };
+      fetchMoveDetails();
     }
   }, [pokemon]);
 
@@ -129,20 +150,24 @@ const ListModal = ({ show, onHide, pokemon }) => {
                 </Tab>
                 <Tab eventKey="attacks" title="Attacks">
                   <div className="mt-3">
-                    {pokemon.moves.slice(0, 6).map((move, index) => (
-                      <div key={index} className="mb-3">
-                        <div className="d-flex justify-content-between">
-                          <strong>{capitalize(move.move.name)}</strong>
-                          <span>{move.move.power || "-"}</span>
+                    {moves.length === 0 ? (
+                      <p>Loading moves...</p>
+                    ) : (
+                      moves.map((move, index) => (
+                        <div key={index} className="mb-3">
+                          <div className="d-flex justify-content-between">
+                            <strong>{capitalize(move.name)}</strong>
+                            <span>{move.power || "-"}</span>
+                          </div>
+                          <ProgressBar
+                            now={move.power || 50}
+                            label={`${move.power || "-"}`}
+                            className="mt-2"
+                            variant="danger"
+                          />
                         </div>
-                        <ProgressBar
-                          now={move.move.power || 50}
-                          label={`${move.move.power || "-"}`}
-                          className="mt-2"
-                          variant="danger"
-                        />
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </Tab>
                 <Tab eventKey="evolutions" title="Evolutions">
