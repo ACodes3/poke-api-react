@@ -10,6 +10,7 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 import Row from "react-bootstrap/Row";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
+import { typeColors } from "./badgeColor";
 
 // Helper function to capitalize the first letter of a string
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
@@ -120,7 +121,12 @@ const ListModal = ({ show, onHide, pokemon }) => {
           </div>
           <div className="mt-2 d-flex justify-content-center align-items-center gap-2">
             {pokemon.types.map((type) => (
-              <Badge key={type.type.name} pill bg="danger" className="mr-1">
+              <Badge
+                key={type.type.name}
+                pill
+                bg={typeColors[type.type.name] || "danger"} // Use the mapped color or default to 'secondary'
+                className="mr-1"
+              >
                 {capitalize(type.type.name)}
               </Badge>
             ))}
