@@ -4,13 +4,16 @@ import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Pagination from "react-bootstrap/Pagination";
-import { getPokemons } from "../api"; // Adjust the import path as needed
+import { getPokemons } from "../api";
+import ListModal from "./ListModal";
 
 const ListComponent = () => {
   const [pokemons, setPokemons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12); // Change this to the number of items you want per page
+  const [itemsPerPage] = useState(12); 
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPokemon, setSelectedPokemon] = useState(null);
 
   useEffect(() => {
     const fetchPokemons = async () => {
@@ -26,6 +29,17 @@ const ListComponent = () => {
     };
     fetchPokemons();
   }, []);
+
+  const fetchPokemonDetails = async (url) => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setSelectedPokemon(data);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Failed to fetch Pokémon details:", error);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -135,10 +149,9 @@ const ListComponent = () => {
                 {pokemon.name}
               </Card.Title>
               <Button
-                className="d-flex justify-content-center aling-content-center align-self-center"
+                className="d-flex w-100 justify-content-center aling-content-center align-self-center"
                 variant="warning"
-                href={pokemon.url}
-                target="_blank"
+                onClick={() => fetchPokemonDetails(pokemon.url)}
               >
                 View Details
               </Button>
@@ -165,6 +178,11 @@ const ListComponent = () => {
           disabled={currentPage === totalPages}
         />
       </Pagination>
+      <ListModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        pokemon={selectedPokemon}
+      />
     </div>
   );
 };
