@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import Modal from "react-bootstrap/Modal";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import Row from 'react-bootstrap/Row';
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 
@@ -45,6 +48,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
 
   return (
     <Modal
+    size="lg"
       show={show}
       onHide={onHide}
       aria-labelledby="pokemon-modal-title"
@@ -71,12 +75,17 @@ const ListModal = ({ show, onHide, pokemon }) => {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-start">
+        <Container>
+          <Row>
+            <Col sm={4}>
         <img
           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
           alt={pokemon.name}
           style={{ width: "200px", marginBottom: "20px" }}
-          className="d-flex justify-content-center align-items-center align-self-center"
+          className="align-center"
         />
+        </Col>
+        <Col sm={8}>
         <Tabs
           defaultActiveKey="about"
           id="pokemon-modal-tabs"
@@ -186,6 +195,9 @@ const ListModal = ({ show, onHide, pokemon }) => {
             </div>
           </Tab>
         </Tabs>
+        </Col>
+        </Row>
+        </Container>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide} className="w-100">
