@@ -75,7 +75,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
           </div>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="text-start">
+      <Modal.Body className="text-start" scrollable>
         <Container>
           <Row>
             <Col
