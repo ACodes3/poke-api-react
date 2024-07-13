@@ -45,7 +45,6 @@ const ListModal = ({ show, onHide, pokemon }) => {
 
   return (
     <Modal
-      size="lg"
       show={show}
       onHide={onHide}
       aria-labelledby="pokemon-modal-title"
@@ -76,6 +75,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
           alt={pokemon.name}
           style={{ width: "200px", marginBottom: "20px" }}
+          className="d-flex justify-content-center align-items-center align-self-center"
         />
         <Tabs
           defaultActiveKey="about"
@@ -84,12 +84,12 @@ const ListModal = ({ show, onHide, pokemon }) => {
           fill
         >
           <Tab eventKey="about" title="About">
-            <div className="text-center mt-3">
+            <div className="text-start mt-3">
               <p>
-                <strong>Height:</strong> {pokemon.height}
+                <strong>Height:</strong> {pokemon.height * 10} cm
               </p>
               <p>
-                <strong>Weight:</strong> {pokemon.weight}
+                <strong>Weight:</strong> {pokemon.weight / 10} kg
               </p>
             </div>
           </Tab>
@@ -148,35 +148,41 @@ const ListModal = ({ show, onHide, pokemon }) => {
           </Tab>
           <Tab eventKey="encounters" title="Encounters">
             <div className="mt-3">
-              {encounters.map((encounter, index) => (
-                <div key={index} className="mb-3">
-                  <Card body>
-                    <p>
-                      <strong>Location:</strong>{" "}
-                      {capitalize(encounter.location_area.name)}
-                    </p>
-                    <p>
-                      <strong>Method:</strong>{" "}
-                      {capitalize(
-                        encounter.version_details[0].encounter_details[0].method
-                          .name
-                      )}
-                    </p>
-                    <p>
-                      <strong>Level Range:</strong>{" "}
-                      {
-                        encounter.version_details[0].encounter_details[0]
-                          .min_level
-                      }{" "}
-                      -{" "}
-                      {
-                        encounter.version_details[0].encounter_details[0]
-                          .max_level
-                      }
-                    </p>
-                  </Card>
-                </div>
-              ))}
+              {encounters.length === 0 ? (
+                <Card body>
+                  <p>No encounters found for this Pokemon.</p>
+                </Card>
+              ) : (
+                encounters.map((encounter, index) => (
+                  <div key={index} className="mb-3">
+                    <Card body>
+                      <p>
+                        <strong>Location:</strong>{" "}
+                        {capitalize(encounter.location_area.name)}
+                      </p>
+                      <p>
+                        <strong>Method:</strong>{" "}
+                        {capitalize(
+                          encounter.version_details[0].encounter_details[0]
+                            .method.name
+                        )}
+                      </p>
+                      <p>
+                        <strong>Level Range:</strong>{" "}
+                        {
+                          encounter.version_details[0].encounter_details[0]
+                            .min_level
+                        }{" "}
+                        -{" "}
+                        {
+                          encounter.version_details[0].encounter_details[0]
+                            .max_level
+                        }
+                      </p>
+                    </Card>
+                  </div>
+                ))
+              )}
             </div>
           </Tab>
         </Tabs>
