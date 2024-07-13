@@ -1,68 +1,14 @@
+import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import { Card } from "react-bootstrap";
+import { Button, Col, Container, Modal, Row, Tab, Tabs } from "react-bootstrap";
 import { Heart } from "react-bootstrap-icons";
-import Badge from "react-bootstrap/Badge";
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
-import Modal from "react-bootstrap/Modal";
-import ProgressBar from "react-bootstrap/ProgressBar";
-import Row from "react-bootstrap/Row";
-import Tab from "react-bootstrap/Tab";
-import Tabs from "react-bootstrap/Tabs";
-import { typeColors } from "./badgeColor";
-
-// Helper function to capitalize the first letter of a string
-const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
-
-// Function to get evolutions
-const getEvolutions = async (pokemonId) => {
-  try {
-    // Fetch Pokémon species data to get the evolution chain URL
-    const speciesResponse = await fetch(
-      `https://pokeapi.co/api/v2/pokemon-species/${pokemonId}/`
-    );
-    const speciesData = await speciesResponse.json();
-
-    // Fetch the evolution chain data using the URL from the species data
-    const evolutionChainUrl = speciesData.evolution_chain.url;
-    const evolutionChainResponse = await fetch(evolutionChainUrl);
-    const evolutionChainData = await evolutionChainResponse.json();
-
-    // Extract the evolution details
-    const evolutions = [];
-    let currentEvolution = evolutionChainData.chain;
-
-    while (currentEvolution) {
-      evolutions.push({
-        id: currentEvolution.species.url.split("/").filter(Boolean).pop(), // Get the Pokémon ID from the URL
-        name: currentEvolution.species.name,
-      });
-      currentEvolution = currentEvolution.evolves_to[0]; // Move to the next evolution in the chain
-    }
-
-    return evolutions;
-  } catch (error) {
-    console.error("Error fetching evolutions:", error);
-    return [];
-  }
-};
-
-// function to get encounters
-const getEncounters = async (pokemonId) => {
-  const response = await fetch(
-    `https://pokeapi.co/api/v2/pokemon/${pokemonId}/encounters`
-  );
-  const data = await response.json();
-  return data;
-};
-
-// function to get move details
-const getMoveDetails = async (moveUrl) => {
-  const response = await fetch(moveUrl);
-  const data = await response.json();
-  return data;
-};
+import PokemonAbout from "./PokemonModalComponents/PokemonAbout";
+import PokemonBaseStats from "./PokemonModalComponents/PokemonBaseStats";
+import PokemonEncounters from "./PokemonModalComponents/PokemonEncounters";
+import PokemonEvolutions from "./PokemonModalComponents/PokemonEvolutions";
+import PokemonHeader from "./PokemonModalComponents/PokemonHeader";
+import PokemonMoves from "./PokemonModalComponents/PokemonMoves";
+import { getEncounters, getEvolutions, getMoveDetails } from "./helpers";
 
 const ListModal = ({ show, onHide, pokemon }) => {
   const [encounters, setEncounters] = useState([]);
@@ -108,31 +54,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
       aria-labelledby="pokemon-modal-title"
       centered
     >
-      <Modal.Header closeButton>
-        <Modal.Title
-          id="pokemon-modal-title"
-          className="w-100 d-flex flex-column align-items-center"
-        >
-          <div className="d-flex flex-column align-items-center">
-            <h1 className="mb-0">{capitalize(pokemon.name)}</h1>
-            <small className="text-muted">
-              #{pokemon.id.toString().padStart(3, "0")}
-            </small>
-          </div>
-          <div className="mt-2 d-flex justify-content-center align-items-center gap-2">
-            {pokemon.types.map((type) => (
-              <Badge
-                key={type.type.name}
-                pill
-                bg={typeColors[type.type.name] || "danger"} // Use the mapped color or default to 'secondary'
-                className="mr-1"
-              >
-                {capitalize(type.type.name)}
-              </Badge>
-            ))}
-          </div>
-        </Modal.Title>
-      </Modal.Header>
+      <PokemonHeader name={pokemon.name} id={pokemon.id} types={pokemon.types} />
       <Modal.Body className="text-start" scrollable>
         <Container>
           <Row>
@@ -158,110 +80,19 @@ const ListModal = ({ show, onHide, pokemon }) => {
                 fill
               >
                 <Tab eventKey="about" title="About">
-                  <div className="text-start mt-3">
-                    <p>
-                      <strong>Height:</strong> {pokemon.height * 10} cm
-                    </p>
-                    <p>
-                      <strong>Weight:</strong> {pokemon.weight / 10} kg
-                    </p>
-                  </div>
+                  <PokemonAbout height={pokemon.height} weight={pokemon.weight} />
                 </Tab>
                 <Tab eventKey="base-stats" title="Base Stats">
-                  <div className="mt-3">
-                    {pokemon.stats.map((stat) => (
-                      <div key={stat.stat.name} className="mb-3">
-                        <div className="d-flex justify-content-between">
-                          <strong>{capitalize(stat.stat.name)}</strong>
-                          <span>{stat.base_stat}</span>
-                        </div>
-                        <ProgressBar
-                          now={stat.base_stat}
-                          label={`${stat.base_stat}`}
-                          className="mt-2"
-                          variant="warning"
-                        />
-                      </div>
-                    ))}
-                  </div>
+                  <PokemonBaseStats stats={pokemon.stats} />
                 </Tab>
                 <Tab eventKey="attacks" title="Attacks">
-                  <div className="mt-3">
-                    {moves.length === 0 ? (
-                      <p>Loading moves...</p>
-                    ) : (
-                      moves.map((move, index) => (
-                        <div key={index} className="mb-3">
-                          <div className="d-flex justify-content-between">
-                            <strong>{capitalize(move.name)}</strong>
-                            <span>{move.power || "-"}</span>
-                          </div>
-                          <ProgressBar
-                            now={move.power || 50}
-                            label={`${move.power || "-"}`}
-                            className="mt-2"
-                            variant="danger"
-                          />
-                        </div>
-                      ))
-                    )}
-                  </div>
+                  <PokemonMoves moves={moves} />
                 </Tab>
                 <Tab eventKey="evolutions" title="Evolutions">
-                  <div className="mt-3 d-flex flex-wrap justify-content-evenly align-items-center">
-                    {evolutions.map((evolution, index) => (
-                      <div
-                        key={index}
-                        className="d-flex flex-column align-items-center mb-3"
-                      >
-                        <img
-                          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolution.id}.png`}
-                          alt={evolution.name}
-                          style={{ width: "100px", marginBottom: "10px" }}
-                        />
-                        <strong>{capitalize(evolution.name)}</strong>
-                      </div>
-                    ))}
-                  </div>
+                  <PokemonEvolutions evolutions={evolutions} />
                 </Tab>
                 <Tab eventKey="encounters" title="Encounters">
-                  <div className="mt-3">
-                    {encounters.length === 0 ? (
-                      <Card body>
-                        <p>No encounters found for this Pokemon.</p>
-                      </Card>
-                    ) : (
-                      encounters.map((encounter, index) => (
-                        <div key={index} className="mb-3">
-                          <Card body>
-                            <p>
-                              <strong>Location:</strong>{" "}
-                              {capitalize(encounter.location_area.name)}
-                            </p>
-                            <p>
-                              <strong>Method:</strong>{" "}
-                              {capitalize(
-                                encounter.version_details[0]
-                                  .encounter_details[0].method.name
-                              )}
-                            </p>
-                            <p>
-                              <strong>Level Range:</strong>{" "}
-                              {
-                                encounter.version_details[0]
-                                  .encounter_details[0].min_level
-                              }{" "}
-                              -{" "}
-                              {
-                                encounter.version_details[0]
-                                  .encounter_details[0].max_level
-                              }
-                            </p>
-                          </Card>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                  <PokemonEncounters encounters={encounters} />
                 </Tab>
               </Tabs>
             </Col>
@@ -275,6 +106,40 @@ const ListModal = ({ show, onHide, pokemon }) => {
       </Modal.Footer>
     </Modal>
   );
+};
+
+ListModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  onHide: PropTypes.func.isRequired,
+  pokemon: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    height: PropTypes.number.isRequired,
+    weight: PropTypes.number.isRequired,
+    types: PropTypes.arrayOf(
+      PropTypes.shape({
+        type: PropTypes.shape({
+          name: PropTypes.string.isRequired,
+        }).isRequired,
+      })
+    ).isRequired,
+    stats: PropTypes.arrayOf(
+      PropTypes.shape({
+        stat: PropTypes.shape({
+          name: PropTypes.string.isRequired,
+        }).isRequired,
+        base_stat: PropTypes.number.isRequired,
+      })
+    ).isRequired,
+    moves: PropTypes.arrayOf(
+      PropTypes.shape({
+        move: PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          url: PropTypes.string.isRequired,
+        }).isRequired,
+      })
+    ).isRequired,
+  }),
 };
 
 export default ListModal;
