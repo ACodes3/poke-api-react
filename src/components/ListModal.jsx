@@ -14,14 +14,37 @@ import Tabs from "react-bootstrap/Tabs";
 // Helper function to capitalize the first letter of a string
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
-// Mock function to get evolutions (replace with actual API call if needed)
-const getEvolutions = (pokemon) => {
-  // This is a placeholder. You need to replace it with actual evolution data.
-  // Assuming it returns an array of evolution objects with id and name.
-  return [
-    { id: 2, name: "Ivysaur" },
-    { id: 3, name: "Venusaur" },
-  ];
+// Function to get evolutions
+const getEvolutions = async (pokemonId) => {
+  try {
+    // Fetch Pokémon species data to get the evolution chain URL
+    const speciesResponse = await fetch(
+      `https://pokeapi.co/api/v2/pokemon-species/${pokemonId}/`
+    );
+    const speciesData = await speciesResponse.json();
+
+    // Fetch the evolution chain data using the URL from the species data
+    const evolutionChainUrl = speciesData.evolution_chain.url;
+    const evolutionChainResponse = await fetch(evolutionChainUrl);
+    const evolutionChainData = await evolutionChainResponse.json();
+
+    // Extract the evolution details
+    const evolutions = [];
+    let currentEvolution = evolutionChainData.chain;
+
+    while (currentEvolution) {
+      evolutions.push({
+        id: currentEvolution.species.url.split("/").filter(Boolean).pop(), // Get the Pokémon ID from the URL
+        name: currentEvolution.species.name,
+      });
+      currentEvolution = currentEvolution.evolves_to[0]; // Move to the next evolution in the chain
+    }
+
+    return evolutions;
+  } catch (error) {
+    console.error("Error fetching evolutions:", error);
+    return [];
+  }
 };
 
 // function to get encounters
@@ -43,11 +66,14 @@ const getMoveDetails = async (moveUrl) => {
 const ListModal = ({ show, onHide, pokemon }) => {
   const [encounters, setEncounters] = useState([]);
   const [moves, setMoves] = useState([]);
+  const [evolutions, setEvolutions] = useState([]);
+
   useEffect(() => {
     if (pokemon) {
       getEncounters(pokemon.id)
         .then((data) => setEncounters(data))
         .catch((error) => console.error("Error fetching encounters:", error));
+
       // Fetch move details
       const fetchMoveDetails = async () => {
         const moveDetails = await Promise.all(
@@ -61,12 +87,17 @@ const ListModal = ({ show, onHide, pokemon }) => {
         setMoves(moveDetails);
       };
       fetchMoveDetails();
+
+      // Fetch evolutions
+      const fetchEvolutions = async () => {
+        const evolutionData = await getEvolutions(pokemon.id);
+        setEvolutions(evolutionData);
+      };
+      fetchEvolutions();
     }
   }, [pokemon]);
 
   if (!pokemon) return null;
-
-  const evolutions = getEvolutions(pokemon);
 
   return (
     <Modal
@@ -171,7 +202,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
                   </div>
                 </Tab>
                 <Tab eventKey="evolutions" title="Evolutions">
-                  <div className="mt-3">
+                  <div className="mt-3 d-flex flex-wrap justify-content-evenly align-items-center">
                     {evolutions.map((evolution, index) => (
                       <div
                         key={index}
