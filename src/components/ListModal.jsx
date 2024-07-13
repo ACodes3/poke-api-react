@@ -65,9 +65,9 @@ const ListModal = ({ show, onHide, pokemon }) => {
               #{pokemon.id.toString().padStart(3, "0")}
             </small>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 d-flex justify-content-center align-items-center gap-2">
             {pokemon.types.map((type) => (
-              <Badge key={type.type.name} pill bg="secondary" className="mr-1">
+              <Badge key={type.type.name} pill bg="warning" className="mr-1">
                 {capitalize(type.type.name)}
               </Badge>
             ))}
@@ -200,7 +200,7 @@ const ListModal = ({ show, onHide, pokemon }) => {
         </Container>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide} className="w-100">
+        <Button variant="danger" onClick={onHide} className="w-100">
           Close
         </Button>
       </Modal.Footer>
