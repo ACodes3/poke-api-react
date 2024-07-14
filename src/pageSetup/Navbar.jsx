@@ -8,7 +8,7 @@ const NavbarComponent = () => {
   return (
     <Navbar expand="lg" className="bg-body-tertiary" sticky="top">
       <Container>
-        <Navbar.Brand href="#home">
+        <Navbar.Brand href="/">
           <img
             alt="logoImg"
             src={LogoImg}
